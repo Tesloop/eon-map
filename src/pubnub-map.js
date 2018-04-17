@@ -50,6 +50,10 @@ module.exports = function (options) {
     options.channelGroups = options.channelGroups || false;
     options.transform = options.transform || function(m){return m};
     options.history = options.history || false;
+    options.processHistory = options.processHistory || processHistory;
+    options.reverseHistory = options.reverseHistory || false;
+    options.afterHistory = options.afterHistory || function(){};
+    options.limit = options.limit || 10;
     options.message = options.message || function(){};
     options.connect = options.connect || function(){};
     options.rotate = options.rotate || false;
@@ -254,6 +258,20 @@ module.exports = function (options) {
       }
     });
 
+    function processHistory(status, payload) {
+
+      if (options.reverseHistory) {
+          payload.messages = payload.messages.reverse();
+      }
+
+      for(var a in payload.messages) {
+        payload.messages[a].entry = options.transform(payload.messages[a].entry);
+        options.message(payload.messages[a].entry, payload.messages[a].timetoken, options.channels);
+        self.update(payload.messages[a].entry, true);
+      }
+
+    };
+
     self.loadHistory = function() {
 
       for(var i in options.channels) {
@@ -261,17 +279,10 @@ module.exports = function (options) {
         self.pubnub.history({
           channel: options.channels[i],
           includeTimetoken: true,
-          count: 10
+          count: options.limit
         }, function(status, payload) {
-
-          payload.messages = payload.messages.reverse();
-
-          for(var a in payload.messages) {
-            payload.messages[a].entry = options.transform(payload.messages[a].entry);
-            options.message(payload.messages[a].entry, payload.messages[a].timetoken, options.channels);
-            self.update(payload.messages[a].entry, true);
-          }
-
+            options.processHistory(status, payload);
+            options.afterHistory();
         });
 
       }

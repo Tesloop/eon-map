@@ -74,6 +74,10 @@ Parameter | Value | Default
 | channelGroups | An array of PubNub channel groups to subscribe to. Either ```channels``` or ```channelGroups``` must be supplied. | ```false```
 | transform | Method for changing the payload format of your stream. | ```function(m){}```
 | history | Use PubNub history call to retrieve last message. This will display points at their last known location. Requires [PubNub storage](http://www.pubnub.com/how-it-works/storage-and-playback/) to be enabled. | ```false```
+| processHistory | Function to call once we retrieve history from pubnub. (Only use if other history hooks are not sufficient for your use-case) | ```See self.processHistory```
+| reverseHistory | Order messages retrieved from history from newest to oldest. | ```false```
+| afterHistory | A function to call after history has been processed. | ```function(){}```
+| limit | Number of messages to retrieve from pubnub history | ```10```
 | pubnub | An instance of the PUBNUB javascript global. This is required when using your own keys. See the ```subscribeKey``` example. | ```false```
 | connect | A function to call when PubNub makes a connection. See [PubNub subscribe](http://www.pubnub.com/docs/javascript/api/reference.html#subscribe) | ```function(){}``` |
 | marker | A custom Mapbox marker object. Use this to change the marker icon, tooltip, etc. | L.marker |
